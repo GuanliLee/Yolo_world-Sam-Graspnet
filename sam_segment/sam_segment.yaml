@@ -1,0 +1,23 @@
+# SAM 分割服务配置文件
+
+# 分割参数
+segmentation:
+  sort_by: area              # 排序方式: area, stability_score, predicted_iou
+  num_of_clicks_for_detection: 3  # 检测点击数
+  min_area_size: 200         # 最小区域面积
+  desired_height: 240         # 目标图像高度
+  desired_width: 320          # 目标图像宽度
+
+# 模型配置
+block:
+
+  # SAM 模型类型
+  # 可选值: vit_h (最大), vit_l (大), vit_b (基础)
+  model_type: vit_b
+
+  # 模型权重路径
+  model_filename: "sam_b.pt"  # 模型文件路径（相对于模型目录）
+
+# 调试选项
+debug:
+  save_visualization: true    # 是否保存可视化结果到 debug 目录

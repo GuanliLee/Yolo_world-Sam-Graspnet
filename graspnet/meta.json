@@ -1,0 +1,261 @@
+{
+  "id": "graspnet",
+  "version": "1.0.0",
+  "name": "GraspNet 抓取位姿估计",
+  "package": "graspnet.zip",
+  "created_at": "2026-04-01T03:34:29.988220Z",
+  "description": "GraspNet 抓取位姿估计模型，支持通过 Redis 键读取图像输入。",
+  "author": "Action Composer Team",
+  "type": "model",
+  "tags": [
+    "grasp",
+    "graspnet",
+    "pose-estimation",
+    "manipulation"
+  ],
+  "parameters": {
+    "detection": {
+      "top_k": {
+        "type": "integer",
+        "description": "保留前 K 个候选。",
+        "default": 20
+      },
+      "vertical_threshold": {
+        "type": "float",
+        "description": "垂直角度阈值(度)。",
+        "default": 30
+      },
+      "num_point": {
+        "type": "integer",
+        "description": "点云采样数量。",
+        "default": 3000
+      },
+      "tcp_offset": {
+        "type": "float",
+        "description": "TCP 偏移量(米)。",
+        "default": 0.0
+      },
+      "safety_margin": {
+        "type": "float",
+        "description": "安全余量(米)。",
+        "default": 0.01
+      },
+      "fixed_offset": {
+        "type": "float",
+        "description": "固定偏移量(米)。",
+        "default": -0.05
+      },
+      "min_depth": {
+        "type": "float",
+        "description": "最小有效深度(米)。",
+        "default": 0.01
+      },
+      "max_depth": {
+        "type": "float",
+        "description": "最大有效深度(米)。",
+        "default": 2.0
+      }
+    },
+    "network": {
+      "input_feature_dim": {
+        "type": "integer",
+        "description": "输入特征维度。",
+        "default": 0
+      },
+      "num_view": {
+        "type": "integer",
+        "description": "视角数量。",
+        "default": 300
+      },
+      "num_angle": {
+        "type": "integer",
+        "description": "角度数量。",
+        "default": 12
+      },
+      "num_depth": {
+        "type": "integer",
+        "description": "深度层数量。",
+        "default": 4
+      },
+      "cylinder_radius": {
+        "type": "float",
+        "description": "圆柱半径。",
+        "default": 0.05
+      },
+      "hmin": {
+        "type": "float",
+        "description": "高度最小值。",
+        "default": -0.02
+      },
+      "hmax_list": {
+        "type": "array",
+        "description": "高度候选列表。",
+        "default": [0.01, 0.02, 0.03, 0.04]
+      }
+    },
+    "collision": {
+      "voxel_size": {
+        "type": "float",
+        "description": "体素大小。",
+        "default": 0.01
+      },
+      "approach_dist": {
+        "type": "float",
+        "description": "接近距离。",
+        "default": 0.05
+      },
+      "collision_thresh": {
+        "type": "float",
+        "description": "碰撞阈值。",
+        "default": 0.01
+      }
+    },
+    "transform": {
+      "robot_type": {
+        "type": "string",
+        "description": "机器人类型（影响坐标变换路由）。",
+        "default": "bobac3_horizontal"
+      }
+    },
+    "block": {
+      "id": {
+        "type": "string",
+        "default": "graspnet",
+        "description": "模型块标识。"
+      },
+      "is_auto_load": {
+        "type": "boolean",
+        "default": true,
+        "description": "是否在首次推理前自动加载模型。"
+      },
+      "model_filename": {
+        "type": "string",
+        "description": "模型文件名（相对于 model 目录）。",
+        "default": "checkpoint-rs.tar"
+      }
+    },
+    "debug": {
+      "save_visualization": {
+        "type": "boolean",
+        "description": "是否保存可视化结果。",
+        "default": true
+      },
+      "enable_open3d_visualization": {
+        "type": "boolean",
+        "description": "是否启用 Open3D 可视化保存。",
+        "default": true
+      }
+    },
+    "camera": {
+      "intrinsics": {
+        "fx": {
+          "type": "float",
+          "description": "x 轴焦距（像素）。",
+          "default": 391.0689697265625
+        },
+        "fy": {
+          "type": "float",
+          "description": "y 轴焦距（像素）。",
+          "default": 390.7862548828125
+        },
+        "cx": {
+          "type": "float",
+          "description": "x 轴光心。",
+          "default": 321.19244384765625
+        },
+        "cy": {
+          "type": "float",
+          "description": "y 轴光心。",
+          "default": 205.70883178710938
+        }
+      },
+      "resolution": {
+        "width": {
+          "type": "integer",
+          "description": "图像宽度。",
+          "default": 640
+        },
+        "height": {
+          "type": "integer",
+          "description": "图像高度。",
+          "default": 400
+        }
+      },
+      "distortion": {
+        "model": {
+          "type": "string",
+          "description": "畸变模型。",
+          "default": "plumb_bob"
+        },
+        "coefficients": {
+          "type": "array",
+          "description": "畸变系数。",
+          "default": [0.0, 0.0, 0.0, 0.0, 0.0]
+        }
+      }
+    }
+  },
+  "inputs": {
+    "image": {
+      "type": "string",
+      "description": "图像输入载荷，支持 Redis 键。"
+    },
+    "use_redis_key": {
+      "type": "boolean",
+      "default": true,
+      "description": "为 true 时将 image 视为 Redis 键，并从 Redis 加载图像。"
+    },
+    "mask_key": {
+      "type": "string",
+      "description": "Redis 掩码键。"
+    },
+    "mask": {
+      "type": "array",
+      "description": "二维 mask。"
+    },
+    "input_bbox": {
+      "type": "array",
+      "description": "边界框 [x1,y1,x2,y2]。"
+    },
+    "bbox": {
+      "type": "array",
+      "description": "兼容字段边界框 [x1,y1,x2,y2]。"
+    },
+    "cam_K": {
+      "type": "array",
+      "description": "3x3 相机内参。"
+    },
+    "context": {
+      "type": "object",
+      "description": "可选上下文字段：dataId/dataid/imageName/topicName/clientId/productId。"
+    }
+  },
+  "outputs": {
+    "success": {
+      "type": "boolean",
+      "description": "模型调用是否成功。"
+    },
+    "pose": {
+      "type": "object",
+      "description": "机器人基座坐标系位姿。"
+    },
+    "error": {
+      "type": "string",
+      "description": "success 为 false 时的错误原因。"
+    }
+  },
+  "interfaces": {
+    "graspnet.load": {
+      "description": "加载模型并初始化推理设备。"
+    },
+    "graspnet.execute_inference": {
+      "description": "生成抓取位姿（相机坐标系）。"
+    },
+    "graspnet.inference_self_with_offset": {
+      "description": "使用动态偏移策略生成抓取位姿。"
+    },
+    "graspnet.postprocess_result": {
+      "description": "转换为机器人基座坐标系位姿。"
+    }
+  }
+}

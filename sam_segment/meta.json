@@ -1,0 +1,119 @@
+{
+  "id": "sam_segment",
+  "version": "1.0.0",
+  "name": "SAM 目标分割",
+  "package": "sam_segment.zip",
+  "created_at": "2026-04-08T00:00:00.000000Z",
+  "description": "基于检测框的 SAM 目标分割模型，支持通过 Redis 键读取图像输入。",
+  "author": "Action Composer Team",
+  "type": "model",
+  "tags": [
+    "segmentation",
+    "sam",
+    "mask"
+  ],
+  "parameters": {
+    "segmentation": {
+      "sort_by": {
+        "type": "string",
+        "description": "排序方式：area/stability_score/predicted_iou。",
+        "default": "area"
+      },
+      "num_of_clicks_for_detection": {
+        "type": "integer",
+        "description": "检测点击数。",
+        "default": 3
+      },
+      "min_area_size": {
+        "type": "integer",
+        "description": "最小区域面积。",
+        "default": 200
+      },
+      "desired_height": {
+        "type": "integer",
+        "description": "目标图像高度。",
+        "default": 240
+      },
+      "desired_width": {
+        "type": "integer",
+        "description": "目标图像宽度。",
+        "default": 320
+      }
+    },
+    "block": {
+      "id": {
+        "type": "string",
+        "default": "sam_segment",
+        "description": "模型块标识。"
+      },
+      "is_auto_load": {
+        "type": "boolean",
+        "default": true,
+        "description": "是否在首次推理前自动加载模型。"
+      },
+      "model_type": {
+        "type": "string",
+        "description": "SAM 模型类型（vit_h/vit_l/vit_b）。",
+        "default": "vit_b"
+      },
+      "model_filename": {
+        "type": "string",
+        "description": "模型文件名（相对于模型目录）。",
+        "default": "sam_b.pt"
+      }
+    },
+    "debug": {
+      "save_visualization": {
+        "type": "boolean",
+        "description": "是否保存分割可视化结果。",
+        "default": true
+      }
+    }
+  },
+  "inputs": {
+    "image": {
+      "type": "string",
+      "description": "图像输入载荷，支持 Redis 键。"
+    },
+    "use_redis_key": {
+      "type": "boolean",
+      "default": true,
+      "description": "为 true 时将 image 视为 Redis 键，并从 Redis 加载图像。"
+    },
+    "detections": {
+      "type": "array",
+      "description": "检测结果列表（优先选最高分 bbox）。"
+    },
+    "bbox": {
+      "type": "array",
+      "description": "单个边界框 [x1,y1,x2,y2]。"
+    },
+    "context": {
+      "type": "object",
+      "description": "可选上下文字段：dataId/dataid/imageName/topicName/clientId/productId。"
+    }
+  },
+  "outputs": {
+    "success": {
+      "type": "boolean",
+      "description": "模型调用是否成功。"
+    },
+    "masks": {
+      "type": "array",
+      "description": "掩码摘要列表（index/area/height/width）。"
+    },
+    "mask_key": {
+      "type": "string",
+      "description": "Redis 中首个掩码的键（5 分钟过期）。"
+    },
+    "error": {
+      "type": "string",
+      "description": "success 为 false 时的错误原因。"
+    }
+  },
+  "interfaces": {
+    "sam_segment.execute_inference": {
+      "description": "根据检测框执行目标分割。"
+    }
+  }
+}

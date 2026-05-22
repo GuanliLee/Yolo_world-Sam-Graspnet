@@ -1,0 +1,111 @@
+{
+  "id": "yolo_world",
+  "version": "1.0.0",
+  "name": "YOLO-World 开放词汇检测",
+  "package": "yolo_world.zip",
+  "created_at": "2026-04-08T00:00:00.000000Z",
+  "description": "YOLO-World 开放词汇目标检测模型，支持通过 Redis 键读取图像输入。",
+  "author": "Action Composer Team",
+  "type": "model",
+  "tags": [
+    "detection",
+    "open-vocabulary",
+    "yolo_world"
+  ],
+  "parameters": {
+    "detection": {
+      "conf_threshold": {
+        "type": "float",
+        "description": "检测置信度阈值，低于该值的检测框将被过滤。",
+        "default": 0.1
+      },
+      "iou_threshold": {
+        "type": "float",
+        "description": "NMS 的 IoU 阈值，用于抑制重叠框。",
+        "default": 0.45
+      },
+      "max_detections": {
+        "type": "integer",
+        "description": "单张图像允许输出的最大检测数量。",
+        "default": 10
+      },
+      "imgsz": {
+        "type": "integer",
+        "description": "推理输入图像尺寸。",
+        "default": 640
+      }
+    },
+    "optimization": {
+      "use_fp16": {
+        "type": "boolean",
+        "description": "是否启用 FP16 推理（仅在 CUDA 场景生效）。",
+        "default": false
+      }
+    },
+    "block": {
+      "id": {
+        "type": "string",
+        "default": "yolo_world",
+        "description": "模型块标识。"
+      },
+      "is_auto_load": {
+        "type": "boolean",
+        "default": true,
+        "description": "是否在首次推理前自动加载模型。"
+      },
+      "model_filename": {
+        "type": "string",
+        "description": "模型文件名（相对于模型目录）。",
+        "default": "yolov8x-worldv2.pt"
+      }
+    },
+    "debug": {
+      "save_visualization": {
+        "type": "boolean",
+        "description": "是否保存检测可视化结果。",
+        "default": true
+      }
+    }
+  },
+  "inputs": {
+    "image": {
+      "type": "string",
+      "description": "图像输入载荷，支持 Redis 键。"
+    },
+    "use_redis_key": {
+      "type": "boolean",
+      "default": true,
+      "description": "为 true 时将 image 视为 Redis 键，并从 Redis 加载图像。"
+    },
+    "text_query": {
+      "type": "string",
+      "description": "开放词汇文本提示（支持逗号分隔）。"
+    },
+    "context": {
+      "type": "object",
+      "description": "可选上下文字段：dataId/dataid/imageName/topicName/clientId/productId。"
+    }
+  },
+  "outputs": {
+    "success": {
+      "type": "boolean",
+      "description": "模型调用是否成功。"
+    },
+    "detections": {
+      "type": "array",
+      "description": "检测结果列表（每项包含 label/score/bbox）。"
+    },
+    "error": {
+      "type": "string",
+      "description": "success 为 false 时的错误原因。"
+    }
+  },
+  "interfaces": {
+    "yolo_world.execute_detect": {
+      "description": "执行开放词汇目标检测。"
+    },
+    "yolo_world.execute": {
+      "description": "兼容方法：透传输入中的 detections。"
+    }
+  }
+}

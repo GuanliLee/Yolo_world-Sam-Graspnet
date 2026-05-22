@@ -1,0 +1,55 @@
+# GraspNet 抓取预测配置文件
+
+# 检测参数
+detection:
+  top_k: 20                    # 保留前K个候选
+  vertical_threshold: 30       # 垂直角度阈值(度)（垂直桌面方向）
+  num_point: 3000              # 点云采样数量
+  # 深度补偿参数
+  tcp_offset: 0.03              # TCP偏移量(米)
+  safety_margin: 0.01          # 安全余量(米)
+  fixed_offset: 0          # 固定偏移量(米)，负值表示减少补偿
+
+# 网络参数
+network:
+  input_feature_dim: 0
+  num_view: 300
+  num_angle: 12
+  num_depth: 4
+  cylinder_radius: 0.05
+  hmin: -0.02
+  hmax_list: [0.01, 0.02, 0.03, 0.04]
+
+# 碰撞检测参数
+collision:
+  voxel_size: 0.01
+  approach_dist: 0.05
+  collision_thresh: 0.01
+
+transform:
+  robot_type: "bobac3_vertical"  # 机器人类型，影响坐标变换
+
+# 模型配置
+block:
+  model_filename: "checkpoint-rs.tar"  # 模型文件路径（相对于模型目录）
+# 调试选项
+debug:
+  save_visualization: false    # 是否保存可视化结果
+  enable_open3d_visualization: false  # 是否启用Open3D可视化保存
+
+# 相机内参
+camera:
+  # iHawk100R 相机内参（从 ROS CameraInfo 消息获取）
+  intrinsics:
+    fx: 391.0689697265625     # x轴焦距（像素）
+    fy: 390.7862548828125     # y轴焦距（像素）
+    cx: 321.19244384765625     # x轴光心
+    cy: 205.70883178710938     # y轴光心
+  # 相机分辨率
+  resolution:
+    width: 640
+    height: 400
+  # 畸变系数
+  distortion:
+    model: "plumb_bob"
+    coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
