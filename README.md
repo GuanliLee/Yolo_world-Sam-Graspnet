@@ -1,10 +1,10 @@
 # YOLO-World + SAM + GraspNet in Isaac Sim
 
-开放词汇目标检测、提示式分割和 RGB-D 抓取位姿估计的仿真项目代码归档。代码来自 5090 上的 `model_config` 和 Isaac Sim 场景脚本；图片为一次仿真运行的可视化记录。
+开放词汇目标检测、提示式分割和 RGB-D 抓取位姿估计的仿真项目代码归档。代码来自 5090 上的 `model_config` 和 Isaac Sim 场景脚本。
 
-![仿真场景中的检测框、分割叠加和抓取点示例](docs/images/yolo_sam_graspnet_visualization.png)
+![Isaac Sim 超市货架与购物车场景的相机截图](docs/images/isaac_sim_capture_20261116.png)
 
-> 图中是调试可视化：检测框和分割区域覆盖了货架的一大块区域，不能据此认定单个瓶子已被准确分割或成功抓取。抓取标记是候选结果，不是实机执行证明。
+上图于 2026-11-16 在 5090 上使用 Isaac Sim 5.1.0、项目原始 USD 场景和 `/World/Robot/lifting_link/head_view_camera` 重新渲染，分辨率为 1280×720。这是未经算法叠加的 RGB 场景图；它不表示目标检测、分割或抓取成功。
 
 ## 流程
 
@@ -27,4 +27,4 @@ flowchart LR
 
 ## 验证范围
 
-本仓库的 Python 文件通过语法编译检查，YAML 可解析。没有在干净环境中完成模型推理或机器人抓取验证。图片仅用于展示仿真场景与调试输出。
+本仓库的 Python 文件通过语法编译检查，YAML 可解析。仿真场景 RGB-D 截图已在 5090 的 Isaac Sim 5.1.0 中重新生成。没有在干净环境中完成 YOLO-World、SAM、GraspNet 联合推理或机器人抓取验证。
