@@ -6,6 +6,8 @@
 
 上图于 2026-11-16 在 5090 上使用 Isaac Sim 5.1.0、项目原始 USD 场景和 `/World/Robot/lifting_link/head_view_camera` 重新渲染，分辨率为 1280×720。这是未经算法叠加的 RGB 场景图；它不表示目标检测、分割或抓取成功。
 
+**[观看完整仿真场景视频（MP4，6 秒）](videos/isaac_sim_scene_walkthrough.mp4)**。视频由同一场景连续渲染 120 帧，镜头左右扫过货架和购物车；这是场景展示，不是 YOLO-World、SAM 或 GraspNet 的推理录像。录制脚本见 `examples/isaac_sim/record_scene_video.py`。
+
 ## 流程
 
 ```mermaid
@@ -27,4 +29,4 @@ flowchart LR
 
 ## 验证范围
 
-本仓库的 Python 文件通过语法编译检查，YAML 可解析。仿真场景 RGB-D 截图已在 5090 的 Isaac Sim 5.1.0 中重新生成。没有在干净环境中完成 YOLO-World、SAM、GraspNet 联合推理或机器人抓取验证。
+本仓库的 Python 文件通过语法编译检查，YAML 可解析。仿真场景 RGB-D 截图与视频已在 5090 的 Isaac Sim 5.1.0 中重新生成。没有在干净环境中完成 YOLO-World、SAM、GraspNet 联合推理或机器人抓取验证。
