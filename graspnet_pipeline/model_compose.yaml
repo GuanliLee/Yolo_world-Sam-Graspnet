@@ -1,0 +1,84 @@
+# ============================================================================
+# GraspNet 抓取预测模型编排配置
+# ============================================================================
+#
+# 功能说明:
+#   - 使用 YOLO-World 进行开放词汇检测
+#   - 使用 SAM 对检测框进行精确分割
+#   - 使用 GraspNet 从 RGB-D 图像预测抓取位姿
+#
+# 【串行执行流程】:
+#   1. YOLO-World 检测 → 返回 bbox + 类别名称 + 置信度
+#   2. SAM 对每个 bbox 进行精确分割 → 返回 mask
+#   3. GraspNet 使用 RGB-D 图像和 mask 预测抓取位姿 → 返回 4x4 矩阵
+#
+# 数据流:
+#   Redis: RGB 图像 + 深度图 + 相机内参
+#   YOLO-World: 检测目标 bbox
+#   SAM: 根据 bbox 生成 mask
+#   GraspNet: 使用 RGB-D + mask → 4x4 抓取位姿矩阵
+#
+# ============================================================================
+
+DAG:
+  serviceId: graspnet_pipeline
+  version: "20250128"
+
+  # 客户端入口配置
+  client_entry:
+    active: true
+    status_params: pipeline_state
+    default_value: 'INITIAL'
+    service_end_point: yoloseries
+
+  # 功能块声明
+  funcblocks:
+    - id: rootnode                    # 入口节点
+
+    # YOLO-World 开放词汇检测
+    - id: yolo_world
+      service_end_point: yoloseries
+
+    # SAM 分割（串行执行，在 YOLO-World 之后）
+    # 接收 YOLO-World 的 bbox，对每个 bbox 进行精确分割
+    - id: sam_segment
+      service_end_point: yoloseries
+
+    # GraspNet 抓取预测（串行执行，在 SAM 之后）
+    # 使用 RGB-D 图像和 SAM 的 mask 预测抓取位姿
+    - id: graspnet
+      service_end_point: yoloseries
+
+    - id: endnode                     # 结束节点
+
+  # 功能块关系定义
+  funcblockreations:
+    # rootnode → YOLO-World
+    - id: rootnode
+      next:
+        nodes: [yolo_world]
+        condition: [true]
+
+    # YOLO-World → SAM（串行执行）
+    # 将 YOLO-World 的检测结果传递给 SAM
+    - id: yolo_world
+      next:
+        nodes: [sam_segment]
+        condition: [true]
+
+    # SAM → GraspNet（串行执行）
+    # 将 SAM 的分割结果传递给 GraspNet
+    - id: sam_segment
+      next:
+        nodes: [graspnet]
+        condition: [true]
+
+    # GraspNet → End
+    - id: graspnet
+      next:
+        nodes: [endnode]
+        condition: [true]
+
+    # endnode: 结束节点
+    - id: endnode
+      postAction: required

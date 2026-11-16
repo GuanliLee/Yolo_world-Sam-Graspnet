@@ -1,0 +1,35 @@
+# GraspNet 抓取预测配置文件
+
+# 检测参数
+detection:
+  top_k: 20                    # 保留前K个候选
+  vertical_threshold: 30       # 垂直角度阈值(度)
+  num_point: 3000              # 点云采样数量
+
+# 网络参数
+network:
+  input_feature_dim: 0
+  num_view: 300
+  num_angle: 12
+  num_depth: 4
+  cylinder_radius: 0.05
+  hmin: -0.02
+  hmax_list: [0.01, 0.02, 0.03, 0.04]
+
+# 碰撞检测参数
+collision:
+  voxel_size: 0.01
+  approach_dist: 0.05
+  collision_thresh: 0.01
+
+# 模型配置
+block:
+  id: yoloseries-graspnet
+  is_auto_load: true
+  model_filename: "checkpoint-rs.tar"  # 模型文件路径（相对于模型目录）
+  hardware: gpu
+  gpu_id: 0
+
+# 调试选项
+debug:
+  save_visualization: true    # 是否保存可视化结果
