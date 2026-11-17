@@ -2,7 +2,7 @@
 
 面向仿真机器人抓取的视觉感知流程：用 YOLO-World 根据文本定位目标，以 SAM 提取目标区域，再结合 RGB-D 数据估计 GraspNet 抓取位姿。
 
-![Isaac Sim 货架与购物车场景](docs/images/isaac_sim_scene.png)
+![Isaac Sim 中的右腕相机、商品与夹爪视角](docs/images/robot_grasp_closeup.png)
 
 ## 仿真画面
 
