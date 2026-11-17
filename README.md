@@ -8,6 +8,20 @@
 
 **[观看完整仿真场景视频（MP4，6 秒）](videos/isaac_sim_scene_walkthrough.mp4)**。视频由同一场景连续渲染 120 帧，镜头左右扫过货架和购物车；这是场景展示，不是 YOLO-World、SAM 或 GraspNet 的推理录像。录制脚本见 `examples/isaac_sim/record_scene_video.py`。
 
+## 机器人仿真录像
+
+以下两段为 Isaac Sim 录屏，完整保留了原视频的画面和声音，并转为 H.264 MP4 以便浏览器播放。点击截图可打开对应完整视频。
+
+[![视频一：机器人靠近货架并切换到左相机视角](docs/images/robot_scene_video_01.png)](videos/isaac_sim_robot_demo_01.mp4)
+
+**[视频一：机器人靠近货架与左相机视角（27.7 秒）](videos/isaac_sim_robot_demo_01.mp4)**
+
+[![视频二：右相机视角下的夹爪与商品近景](docs/images/robot_scene_video_02.png)](videos/isaac_sim_robot_demo_02.mp4)
+
+**[视频二：右相机视角与夹爪近景（30.9 秒）](videos/isaac_sim_robot_demo_02.mp4)**
+
+这两段录屏展示场景和机器人运动；画面没有同时显示 YOLO-World 检测、SAM mask 与 GraspNet 位姿输出，因此不能作为联合推理成功的验证录像。
+
 ## 流程
 
 ```mermaid
