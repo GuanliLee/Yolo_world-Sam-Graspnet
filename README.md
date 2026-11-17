@@ -1,46 +1,39 @@
 # YOLO-World + SAM + GraspNet in Isaac Sim
 
-开放词汇目标检测、提示式分割和 RGB-D 抓取位姿估计的仿真项目代码归档。代码来自 5090 上的 `model_config` 和 Isaac Sim 场景脚本。
+面向仿真机器人抓取的视觉感知流程：用 YOLO-World 根据文本定位目标，以 SAM 提取目标区域，再结合 RGB-D 数据估计 GraspNet 抓取位姿。
 
-![Isaac Sim 超市货架与购物车场景的相机截图](docs/images/isaac_sim_capture_20261116.png)
+![Isaac Sim 货架与购物车场景](docs/images/isaac_sim_scene.png)
 
-上图于 2026-11-16 在 5090 上使用 Isaac Sim 5.1.0、项目原始 USD 场景和 `/World/Robot/lifting_link/head_view_camera` 重新渲染，分辨率为 1280×720。这是未经算法叠加的 RGB 场景图；它不表示目标检测、分割或抓取成功。
+## 仿真画面
 
-**[观看完整仿真场景视频（MP4，6 秒）](videos/isaac_sim_scene_walkthrough.mp4)**。视频由同一场景连续渲染 120 帧，镜头左右扫过货架和购物车；这是场景展示，不是 YOLO-World、SAM 或 GraspNet 的推理录像。录制脚本见 `examples/isaac_sim/record_scene_video.py`。
+[场景漫游视频](videos/isaac_sim_scene_walkthrough.mp4)展示了货架、商品、购物车和机器人视角。
 
-## 机器人仿真录像
+| 机器人与货架 | 右腕相机与夹爪 |
+| --- | --- |
+| [![机器人在仿真场景中的录屏截图](docs/images/robot_scene_video_01.png)](videos/isaac_sim_robot_demo_01.mp4) | [![右腕相机与夹爪的录屏截图](docs/images/robot_scene_video_02.png)](videos/isaac_sim_robot_demo_02.mp4) |
+| [观看视频 1](videos/isaac_sim_robot_demo_01.mp4) | [观看视频 2](videos/isaac_sim_robot_demo_02.mp4) |
 
-以下两段为 Isaac Sim 录屏，完整保留了原视频的画面和声音，并转为 H.264 MP4 以便浏览器播放。点击截图可打开对应完整视频。
-
-[![视频一：机器人靠近货架并切换到左相机视角](docs/images/robot_scene_video_01.png)](videos/isaac_sim_robot_demo_01.mp4)
-
-**[视频一：机器人靠近货架与左相机视角（27.7 秒）](videos/isaac_sim_robot_demo_01.mp4)**
-
-[![视频二：右相机视角下的夹爪与商品近景](docs/images/robot_scene_video_02.png)](videos/isaac_sim_robot_demo_02.mp4)
-
-**[视频二：右相机视角与夹爪近景（30.9 秒）](videos/isaac_sim_robot_demo_02.mp4)**
-
-这两段录屏展示场景和机器人运动；画面没有同时显示 YOLO-World 检测、SAM mask 与 GraspNet 位姿输出，因此不能作为联合推理成功的验证录像。
-
-## 流程
+## 感知流程
 
 ```mermaid
 flowchart LR
-    A[Isaac Sim RGB-D 与相机内参] --> B[YOLO-World 开放词汇检测]
-    B -->|检测框| C[SAM 分割]
-    C -->|目标 mask| D[GraspNet 抓取估计]
+    A[Isaac Sim RGB-D 图像与相机内参] --> B[YOLO-World 文本目标检测]
+    B -->|目标框| C[SAM 实例分割]
+    C -->|目标掩膜| D[GraspNet 抓取位姿估计]
     A --> D
-    D --> E[相机系抓取位姿 / 世界系转换]
+    D --> E[相机坐标系与世界坐标系转换]
 ```
 
-`graspnet_pipeline/model_compose.yaml` 描述 YOLO-World → SAM → GraspNet 的串行 DAG。模型适配代码在 `yolo_world/`、`sam_segment/`、`graspnet/`。`examples/isaac_sim/` 包含 RGB-D 导出、SAM 框提示、结果绘图和基线推理脚本。原始环境笔记保存在 `docs/original_model_config_README.md`，其中的机器路径是历史记录。
+`graspnet_pipeline/model_compose.yaml` 定义模型调用顺序。`yolo_world/`、`sam_segment/`、`graspnet/` 分别包含模型适配代码；`examples/isaac_sim/` 提供 RGB-D 导出、框提示分割、抓取推理和结果可视化脚本。
 
-## 运行前提
+## 使用
 
-这是一份研究环境代码归档，**尚未整理成一键运行的独立发行版**。模型服务依赖原项目的 `invoke`/`base.base_model_service` 编排接口、Redis 连接工具，以及 PyTorch、Ultralytics、Segment Anything、GraspNet baseline、graspnetAPI、Open3D、OpenCV 和 Isaac Sim。请按各上游项目的安装说明配置与版本匹配的环境。
+项目使用 Python、Isaac Sim、YOLO-World、Segment Anything、GraspNet 与 Open3D。按各上游项目说明安装模型及其依赖，并在 `graspnet_pipeline/model_compose.yaml` 中配置权重路径和服务参数。GraspNet baseline 路径可通过 `GRASPNET_BASELINE_DIR` 设置。
 
-模型权重、第三方源码、仿真资产、点云和运行结果未纳入仓库。运行前需要自行获取对应权重并放到 YAML 指定的位置；GraspNet baseline 路径可通过 `GRASPNET_BASELINE_DIR` 设置。Redis 连接仍需由原编排环境的 `utils.utils.connect_remote_redis` 提供。`examples/isaac_sim/` 中的默认路径来自原 5090 环境，换机器运行时请调整路径、容器名和脚本参数。
+```bash
+# 在已配置 Isaac Sim 与模型依赖的环境中
+python examples/isaac_sim/export_isaac_rgbd_for_graspnet.py --help
+python examples/isaac_sim/run_sam_bbox_prompt.py --help
+```
 
-## 验证范围
-
-本仓库的 Python 文件通过语法编译检查，YAML 可解析。仿真场景 RGB-D 截图与视频已在 5090 的 Isaac Sim 5.1.0 中重新生成。没有在干净环境中完成 YOLO-World、SAM、GraspNet 联合推理或机器人抓取验证。
+仿真场景漫游的录制脚本为 `examples/isaac_sim/record_scene_video.py`。录像展示场景和机器人视角；感知流程的模型输出由相应推理与可视化脚本生成。
